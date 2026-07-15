@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análise Administrativo da Empresa X</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy: #0f2438;
+    --navy-2: #16324c;
+    --paper: #eee7d8;
+    --gold: #b08d3f;
+    --gold-light: #d9bf7c;
+    --line: rgba(238,231,216,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: var(--navy);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+  }
+  header{
+    padding: 48px 56px 32px;
+    border-bottom: 1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:24px;
+  }
+  .brand-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color: var(--gold-light);
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(30px, 4vw, 44px);
+    letter-spacing:-0.01em;
+    line-height:1.05;
+  }
+  .subtitle{
+    color: rgba(238,231,216,0.55);
+    font-size:14px;
+    margin-top:8px;
+    max-width:480px;
+  }
+  .as-of{
+    text-align:right;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color: rgba(238,231,216,0.5);
+  }
+  .as-of .num{
+    font-family:'Fraunces', serif;
+    font-size:20px;
+    color: var(--paper);
+    display:block;
+    margin-top:4px;
+  }
+
+  main{
+    padding: 40px 56px 80px;
+    max-width:1280px;
+    margin: 0 auto;
+  }
+
+  .ledger{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top:1px solid var(--line);
+    border-left:1px solid var(--line);
+    margin-bottom:48px;
+  }
+  .ledger-cell{
+    border-right:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    padding: 28px 26px;
+    transition: background 0.2s ease;
+  }
+  .ledger-cell:hover{ background: rgba(238,231,216,0.03); }
+  .ledger-cell .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: var(--gold-light);
+    display:block;
+    margin-bottom:14px;
+  }
+  .ledger-cell .value{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(28px, 3vw, 38px);
+    line-height:1;
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 1px;
+    background: var(--line);
+    border:1px solid var(--line);
+    margin-bottom:1px;
+  }
+  .panel{
+    background: var(--navy);
+    padding: 30px 30px 20px;
+  }
+  .panel-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:24px;
+  }
+  .panel-head h2{
+    font-family:'Fraunces', serif;
+    font-size:19px;
+    font-weight:600;
+  }
+  .panel-head .n{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color: rgba(238,231,216,0.4);
+  }
+
+  .bars{
+    display:flex;
+    align-items:flex-end;
+    gap:10px;
+    height:220px;
+    padding-top:10px;
+  }
+  .bar-col{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    height:100%;
+    justify-content:flex-end;
+  }
+  .bar{
+    width:100%;
+    max-width:38px;
+    background: linear-gradient(180deg, var(--gold-light), var(--gold));
+    border-radius: 3px 3px 0 0;
+    transition: filter 0.2s ease;
+  }
+  .bar:hover{ filter:brightness(1.15); }
+  .bar-val{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color: var(--paper);
+    margin-bottom:6px;
+  }
+  .bar-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color: rgba(238,231,216,0.5);
+    margin-top:8px;
+  }
+
+  .hbars{ display:flex; flex-direction:column; gap:16px; }
+  .hbar-row{ display:grid; grid-template-columns: 108px 1fr 40px; align-items:center; gap:12px; }
+  .hbar-label{ font-size:13px; color: var(--paper); }
+  .hbar-track{ height:10px; background: rgba(238,231,216,0.08); border-radius:6px; overflow:hidden; }
+  .hbar-fill{ height:100%; background: linear-gradient(90deg, var(--navy-2), var(--gold)); border-radius:6px; }
+  .hbar-val{ font-family:'IBM Plex Mono', monospace; font-size:12px; text-align:right; color: rgba(238,231,216,0.6); }
+
+  footer{
+    text-align:center;
+    padding: 28px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color: rgba(238,231,216,0.35);
+    border-top:1px solid var(--line);
+  }
+
+  @media (max-width: 860px){
+    header{ padding: 32px 24px 24px; }
+    main{ padding: 28px 20px 60px; }
+    .ledger{ grid-template-columns: 1fr; }
+    .grid-2{ grid-template-columns: 1fr; }
+    .as-of{ text-align:left; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <div class="brand-eyebrow">Departamento Administrativo</div>
+      <h1>Análise Administrativo da Empresa X</h1>
+      <p class="subtitle">Visão consolidada de quadro de pessoal, folha salarial e distribuição por área.</p>
+    </div>
+    <div class="as-of">
+      Posição em
+      <span class="num">Jul 2026</span>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="ledger">
+      <div class="ledger-cell">
+        <span class="tag">Total de gasto salarial</span>
+        <div class="value">R$ 2,70 Mi</div>
+      </div>
+      <div class="ledger-cell">
+        <span class="tag">Média salarial</span>
+        <div class="value">R$ 6,72 Mil</div>
+      </div>
+      <div class="ledger-cell">
+        <span class="tag">Área com mais funcionários</span>
+        <div class="value" style="font-size:30px;">Administrativo</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Contratações por ano</h2>
+          <span class="n">contagem de data de contratação</span>
+        </div>
+        <div class="bars" id="bars"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Cargos por área</h2>
+          <span class="n">contagem</span>
+        </div>
+        <div class="hbars" id="hbars"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>Análise Administrativo da Empresa X · dashboard estático · Power BI</footer>
+
+<script>
+const contratacoes = [
+  {ano:'2017', valor:40},
+  {ano:'2015', valor:32},
+  {ano:'2020', valor:31},
+  {ano:'2018', valor:28},
+  {ano:'2021', valor:28},
+  {ano:'2019', valor:27},
+  {ano:'2014', valor:23},
+  {ano:'2016', valor:20},
+  {ano:'2022', valor:6},
+];
+const maxV = Math.max(...contratacoes.map(c=>c.valor));
+const barsEl = document.getElementById('bars');
+contratacoes.forEach(c=>{
+  const col = document.createElement('div');
+  col.className = 'bar-col';
+  col.innerHTML = `
+    <span class="bar-val">${c.valor}</span>
+    <div class="bar" style="height:${(c.valor/maxV*100).toFixed(0)}%"></div>
+    <span class="bar-label">${c.ano}</span>
+  `;
+  barsEl.appendChild(col);
+});
+
+const areas = [
+  {nome:'Administrativo', valor:60},
+  {nome:'Comercial', valor:54},
+  {nome:'Operações', valor:45},
+  {nome:'Logística', valor:39},
+  {nome:'Financeiro', valor:37},
+];
+const maxA = Math.max(...areas.map(a=>a.valor));
+const hbarsEl = document.getElementById('hbars');
+areas.forEach(a=>{
+  const row = document.createElement('div');
+  row.className = 'hbar-row';
+  row.innerHTML = `
+    <span class="hbar-label">${a.nome}</span>
+    <div class="hbar-track"><div class="hbar-fill" style="width:${(a.valor/maxA*100).toFixed(0)}%"></div></div>
+    <span class="hbar-val">${a.valor}</span>
+  `;
+  hbarsEl.appendChild(row);
+});
+</script>
+
+</body>
+</html>
