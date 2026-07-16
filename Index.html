@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análise Administrativo da Empresa X</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy: #0f2438;
+    --navy-2: #16324c;
+    --paper: #eee7d8;
+    --gold: #b08d3f;
+    --gold-light: #d9bf7c;
+    --line: rgba(238,231,216,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: var(--navy);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+  }
+  header{
+    padding: 48px 56px 32px;
+    border-bottom: 1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:24px;
+  }
+  .brand-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color: var(--gold-light);
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(30px, 4vw, 44px);
+    letter-spacing:-0.01em;
+    line-height:1.05;
+  }
+  .subtitle{
+    color: rgba(238,231,216,0.55);
+    font-size:14px;
+    margin-top:8px;
+    max-width:520px;
+  }
+  .as-of{
+    text-align:right;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color: rgba(238,231,216,0.5);
+  }
+  .as-of .num{
+    font-family:'Fraunces', serif;
+    font-size:20px;
+    color: var(--paper);
+    display:block;
+    margin-top:4px;
+  }
+
+  main{
+    padding: 40px 56px 60px;
+    max-width:1280px;
+    margin: 0 auto;
+  }
+
+  .filter-bar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-height:34px;
+    margin-bottom:20px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color: rgba(238,231,216,0.55);
+  }
+  .filter-chip{
+    display:none;
+    align-items:center;
+    gap:8px;
+    background: var(--gold);
+    color: var(--navy);
+    padding:6px 12px;
+    border-radius:20px;
+    font-weight:600;
+  }
+  .filter-chip.active{ display:inline-flex; }
+  .filter-chip button{
+    background:none;
+    border:none;
+    color: var(--navy);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    cursor:pointer;
+    line-height:1;
+    padding:0;
+  }
+  .filter-hint{ opacity:0.7; }
+
+  .ledger{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top:1px solid var(--line);
+    border-left:1px solid var(--line);
+    margin-bottom:1px;
+  }
+  .ledger-cell{
+    border-right:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    padding: 28px 26px;
+    transition: background 0.2s ease;
+  }
+  .ledger-cell .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: var(--gold-light);
+    display:block;
+    margin-bottom:14px;
+  }
+  .ledger-cell .value{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(26px, 3vw, 36px);
+    line-height:1;
+    transition: all 0.25s ease;
+  }
+  .ledger-cell .sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color: rgba(238,231,216,0.4);
+    margin-top:10px;
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 1px;
+    background: var(--line);
+    border:1px solid var(--line);
+    margin-bottom:1px;
+  }
+  .panel{
+    background: var(--navy);
+    padding: 30px 30px 20px;
+  }
+  .panel-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:10px;
+  }
+  .panel-head h2{
+    font-family:'Fraunces', serif;
+    font-size:19px;
+    font-weight:600;
+  }
+  .panel-head .n{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color: rgba(238,231,216,0.4);
+  }
+  .panel-note{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color: rgba(238,231,216,0.35);
+    margin-bottom:18px;
+  }
+
+  .bars{
+    display:flex;
+    align-items:flex-end;
+    gap:10px;
+    height:220px;
+    padding-top:10px;
+    position:relative;
+  }
+  .bar-col{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    height:100%;
+    justify-content:flex-end;
+    cursor:pointer;
+  }
+  .bar{
+    width:100%;
+    max-width:38px;
+    background: linear-gradient(180deg, var(--gold-light), var(--gold));
+    border-radius: 3px 3px 0 0;
+    transition: filter 0.15s ease, height 0.35s ease, opacity 0.2s ease;
+    position:relative;
+  }
+  .bar-col:hover .bar, .bar-col.selected .bar{ filter:brightness(1.2); }
+  .bar-col.dimmed .bar{ opacity:0.28; }
+  .bar-val{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color: var(--paper);
+    margin-bottom:6px;
+    transition: opacity 0.2s ease;
+  }
+  .bar-col.dimmed .bar-val{ opacity:0.35; }
+  .bar-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color: rgba(238,231,216,0.5);
+    margin-top:8px;
+    transition: opacity 0.2s ease;
+  }
+  .bar-col.dimmed .bar-label{ opacity:0.35; }
+  .bar-col.selected .bar-label{ color: var(--gold-light); }
+
+  .hbars{ display:flex; flex-direction:column; gap:16px; }
+  .hbar-row{
+    display:grid;
+    grid-template-columns: 108px 1fr 40px;
+    align-items:center;
+    gap:12px;
+    cursor:pointer;
+    padding:4px 6px;
+    margin:-4px -6px;
+    border-radius:6px;
+    transition: background 0.15s ease, opacity 0.2s ease;
+  }
+  .hbar-row:hover{ background: rgba(238,231,216,0.05); }
+  .hbar-row.dimmed{ opacity:0.32; }
+  .hbar-label{ font-size:13px; color: var(--paper); }
+  .hbar-row.selected .hbar-label{ color: var(--gold-light); font-weight:600; }
+  .hbar-track{ height:10px; background: rgba(238,231,216,0.08); border-radius:6px; overflow:hidden; }
+  .hbar-fill{ height:100%; background: linear-gradient(90deg, var(--navy-2), var(--gold)); border-radius:6px; transition: filter 0.15s ease; }
+  .hbar-row:hover .hbar-fill, .hbar-row.selected .hbar-fill{ filter:brightness(1.25); }
+  .hbar-val{ font-family:'IBM Plex Mono', monospace; font-size:12px; text-align:right; color: rgba(238,231,216,0.6); }
+
+  /* tooltip */
+  #tooltip{
+    position:fixed;
+    pointer-events:none;
+    background: var(--paper);
+    color: var(--navy);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding:10px 14px;
+    border-radius:6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    z-index:100;
+    opacity:0;
+    transform: translateY(4px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    max-width:220px;
+    line-height:1.5;
+  }
+  #tooltip.show{ opacity:1; transform: translateY(0); }
+  #tooltip b{ display:block; font-family:'Fraunces', serif; font-size:14px; margin-bottom:2px; }
+
+  footer{
+    text-align:center;
+    padding: 28px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color: rgba(238,231,216,0.35);
+    border-top:1px solid var(--line);
+  }
+
+  @media (max-width: 860px){
+    header{ padding: 32px 24px 24px; }
+    main{ padding: 28px 20px 60px; }
+    .ledger{ grid-template-columns: 1fr; }
+    .grid-2{ grid-template-columns: 1fr; }
+    .as-of{ text-align:left; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <div class="brand-eyebrow">Departamento Administrativo</div>
+      <h1>Análise Administrativo da Empresa X</h1>
+      <p class="subtitle">Visão consolidada de quadro de pessoal, folha salarial e distribuição por área. Clique numa barra pra filtrar — igual no Power BI.</p>
+    </div>
+    <div class="as-of">
+      Posição em
+      <span class="num">Jul 2026</span>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="filter-bar">
+      <span class="filter-hint">Filtro:</span>
+      <span class="filter-chip" id="filterChip">
+        <span id="filterChipText"></span>
+        <button id="clearFilter" title="Limpar filtro">✕</button>
+      </span>
+      <span class="filter-hint" id="noFilterHint">nenhum — clique numa barra ou coluna</span>
+    </div>
+
+    <div class="ledger">
+      <div class="ledger-cell">
+        <span class="tag">Total de gasto salarial</span>
+        <div class="value" id="cardGasto">R$ 2,70 Mi</div>
+        <div class="sub" id="cardGastoSub">com benefícios e imposto</div>
+      </div>
+      <div class="ledger-cell">
+        <span class="tag">Média salarial</span>
+        <div class="value" id="cardMedia">R$ 6,72 Mil</div>
+        <div class="sub" id="cardMediaSub">salário-base, sem benefícios</div>
+      </div>
+      <div class="ledger-cell">
+        <span class="tag">Área com mais funcionários</span>
+        <div class="value" id="cardArea" style="font-size:28px;">Administrativo</div>
+        <div class="sub" id="cardAreaSub">60 colaboradores</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Contratações por ano</h2>
+          <span class="n">contagem</span>
+        </div>
+        <div class="panel-note">passe o mouse para detalhes · clique para filtrar</div>
+        <div class="bars" id="bars"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Funcionários por área</h2>
+          <span class="n">contagem</span>
+        </div>
+        <div class="panel-note">passe o mouse para detalhes · clique para filtrar</div>
+        <div class="hbars" id="hbars"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>Análise Administrativo da Empresa X · 235 funcionários · dados tratados via Power Query</footer>
+
+  <div id="tooltip"></div>
+
+<script>
+const DADOS = {"total_gasto": 2702940.0, "media_salarial": 6719.57, "area_mais": "Administrativo", "contratacoes_ano": {"2014": 23, "2015": 32, "2016": 20, "2017": 40, "2018": 28, "2019": 27, "2020": 31, "2021": 28, "2022": 6}, "func_area": {"Administrativo": 60, "Comercial": 54, "Opera\u00e7\u00f5es": 45, "Log\u00edstica": 39, "Financeiro": 37}, "gasto_por_area": {"Administrativo": 650440.0, "Comercial": 616850.0, "Financeiro": 418690.0, "Log\u00edstica": 495790.0, "Opera\u00e7\u00f5es": 521170.0}, "records": [{"Nome": "Fl\u00e1vio Barbosa", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2014, "GastoSalarial": 11960.0, "Salario": 7100, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Lu\u00edza Roussef", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2014, "GastoSalarial": 2880.0, "Salario": 1400, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Isabelle de S\u00e1 Foly", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2014, "GastoSalarial": 14680.0, "Salario": 8800, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Giuseppe Fernandes", "Area": "Log\u00edstica", "Cargo": "Coordenador", "AnoContratacao": 2014, "GastoSalarial": 16850.0, "Salario": 10000, "Cidade": "Recife", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Luiz Ladogano", "Area": "Financeiro", "Cargo": "Analista", "AnoContratacao": 2014, "GastoSalarial": 11990.0, "Salario": 7000, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Lucas Procaci", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2014, "GastoSalarial": 11510.0, "Salario": 6800, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Roberta Vaz", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2014, "GastoSalarial": 3000.0, "Salario": 1500, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Gabriela Coutinho", "Area": "Log\u00edstica", "Cargo": "Coordenador", "AnoContratacao": 2014, "GastoSalarial": 19690.0, "Salario": 11900, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Eduardo Ramos", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2014, "GastoSalarial": 2140.0, "Salario": 800, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Lucas Alvim", "Area": "Opera\u00e7\u00f5es", "Cargo": "Gerente", "AnoContratacao": 2014, "GastoSalarial": 24560.0, "Salario": 14800, "Cidade": "Salvador", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Frederico Vidal", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2014, "GastoSalarial": 8330.0, "Salario": 4800, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Gabriel Pereira", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2014, "GastoSalarial": 16120.0, "Salario": 9700, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Amanda Rodrigues", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2014, "GastoSalarial": 14110.0, "Salario": 8300, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jos\u00e9 Guimar\u00e3es", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2014, "GastoSalarial": 11620.0, "Salario": 6900, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Isabella Meirelles", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2014, "GastoSalarial": 3570.0, "Salario": 1700, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Carolina Monteiro", "Area": "Financeiro", "Cargo": "Coordenador", "AnoContratacao": 2014, "GastoSalarial": 17700.0, "Salario": 10500, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "B\u00e1rbara Gon\u00e7alves ", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2014, "GastoSalarial": 2320.0, "Salario": 1100, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Amanda Marinho", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2014, "GastoSalarial": 3940.0, "Salario": 1900, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luiz de Mattos", "Area": "Log\u00edstica", "Cargo": "Coordenador", "AnoContratacao": 2014, "GastoSalarial": 19830.0, "Salario": 12000, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Bruna Santos Oliveira", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2014, "GastoSalarial": 10110.0, "Salario": 5800, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luiz Viana", "Area": "Log\u00edstica", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2014, "GastoSalarial": 2780.0, "Salario": 1200, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Beatriz Machado Araujo", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2014, "GastoSalarial": 2910.0, "Salario": 1300, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Brenda Lopes", "Area": "Comercial", "Cargo": "Gerente", "AnoContratacao": 2014, "GastoSalarial": 25210.0, "Salario": 15300, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Renan Steiner Costa", "Area": "Financeiro", "Cargo": "Coordenador", "AnoContratacao": 2015, "GastoSalarial": 18010.0, "Salario": 10700, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Carolina Calafate", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2015, "GastoSalarial": 10090.0, "Salario": 5800, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Manuela Brum", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2015, "GastoSalarial": 17210.0, "Salario": 10300, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Pedro Fontes", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2015, "GastoSalarial": 12370.0, "Salario": 7200, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jo\u00e3o Pereira Da Silva", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2015, "GastoSalarial": 2130.0, "Salario": 900, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Pedro Wermelinger Santos", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2015, "GastoSalarial": 3730.0, "Salario": 1800, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Maria Freire de Souza", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2015, "GastoSalarial": 2300.0, "Salario": 900, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Nicolas Concei\u00e7\u00e3o Leite", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2015, "GastoSalarial": 2880.0, "Salario": 1400, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luiz Costa Vasconcellos", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2015, "GastoSalarial": 17060.0, "Salario": 10300, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Aline de Souza", "Area": "Administrativo", "Cargo": "Gerente", "AnoContratacao": 2015, "GastoSalarial": 27670.0, "Salario": 16900, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Alfredo Machado Araujo", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2015, "GastoSalarial": 16940.0, "Salario": 10000, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Stefan Silva", "Area": "Financeiro", "Cargo": "Coordenador", "AnoContratacao": 2015, "GastoSalarial": 15900.0, "Salario": 9400, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Mariana Martins", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2015, "GastoSalarial": 12720.0, "Salario": 7600, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Guilherme Johnson", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2015, "GastoSalarial": 17700.0, "Salario": 10500, "Cidade": "Recife", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Guilherme Nunez", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2015, "GastoSalarial": 12740.0, "Salario": 7400, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Lorena Freire", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2015, "GastoSalarial": 3850.0, "Salario": 2000, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Catarina Virginio", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2015, "GastoSalarial": 9510.0, "Salario": 5500, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Camilla Ferraz", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2015, "GastoSalarial": 13770.0, "Salario": 8200, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Saranna Lepore Pinheiro", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2015, "GastoSalarial": 13670.0, "Salario": 8100, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Arthur Bispo", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2015, "GastoSalarial": 11190.0, "Salario": 6600, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luis Guimar\u00e3es", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2015, "GastoSalarial": 10480.0, "Salario": 6200, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Gabriel Mello", "Area": "Log\u00edstica", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2015, "GastoSalarial": 3470.0, "Salario": 1700, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Caio Stellet", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2015, "GastoSalarial": 8880.0, "Salario": 5200, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Myllena Nacif", "Area": "Log\u00edstica", "Cargo": "Coordenador", "AnoContratacao": 2015, "GastoSalarial": 21590.0, "Salario": 13100, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bernard Mello", "Area": "Comercial", "Cargo": "Gerente", "AnoContratacao": 2015, "GastoSalarial": 26510.0, "Salario": 16100, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Rodrigo Funcke", "Area": "Log\u00edstica", "Cargo": "Gerente", "AnoContratacao": 2015, "GastoSalarial": 24170.0, "Salario": 14700, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Matheus Monteiro", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2015, "GastoSalarial": 2930.0, "Salario": 1300, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Rafael Viana Santos", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2015, "GastoSalarial": 18190.0, "Salario": 10900, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Leticia Mota", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2015, "GastoSalarial": 14170.0, "Salario": 8400, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Adriano de Souza", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2015, "GastoSalarial": 3030.0, "Salario": 1500, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luis Morgado", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2015, "GastoSalarial": 2090.0, "Salario": 800, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jo\u00e3o de Ara\u00fajo  ", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2015, "GastoSalarial": 15040.0, "Salario": 9000, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Patrick da Silva Farias ", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2016, "GastoSalarial": 3750.0, "Salario": 1900, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Matheus Rodrigues Luiz", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2016, "GastoSalarial": 3180.0, "Salario": 1400, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Lorena Marinho", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2016, "GastoSalarial": 10810.0, "Salario": 6200, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Poline Limp", "Area": "Log\u00edstica", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2016, "GastoSalarial": 2330.0, "Salario": 900, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "\u00c1tila Godoy de Melo", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2016, "GastoSalarial": 1990.0, "Salario": 800, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Raquel Tavares", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2016, "GastoSalarial": 19530.0, "Salario": 11700, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Fillipe Tupini", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2016, "GastoSalarial": 10460.0, "Salario": 6000, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Emilaine Oliveira de Mello Silva", "Area": "Log\u00edstica", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2016, "GastoSalarial": 4000.0, "Salario": 2100, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Gabriela Costa", "Area": "Log\u00edstica", "Cargo": "Diretor", "AnoContratacao": 2016, "GastoSalarial": 41130.0, "Salario": 25300, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Lucas Alvarenga dos Santos", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2016, "GastoSalarial": 2520.0, "Salario": 1200, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Lorena de Moraes Junior", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2016, "GastoSalarial": 10970.0, "Salario": 6400, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Amanda de Lacerda", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2016, "GastoSalarial": 10010.0, "Salario": 5700, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Marcelo Monnerat", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2016, "GastoSalarial": 11930.0, "Salario": 6900, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Ana Fernandes Filardi", "Area": "Log\u00edstica", "Cargo": "Gerente", "AnoContratacao": 2016, "GastoSalarial": 27570.0, "Salario": 16700, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luiza Monnerat", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2016, "GastoSalarial": 20900.0, "Salario": 12500, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bruna Jimenez Jimbo", "Area": "Administrativo", "Cargo": "Gerente", "AnoContratacao": 2016, "GastoSalarial": 23470.0, "Salario": 14200, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "\u00c9bio Velucci", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2016, "GastoSalarial": 2690.0, "Salario": 1300, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Fl\u00e1vio Jacques Gamboa Fernandez de Oliveira Netto", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2016, "GastoSalarial": 3930.0, "Salario": 2000, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "R\u00f4mulo Pedrazza", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2016, "GastoSalarial": 3160.0, "Salario": 1600, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Leandro Coutinho", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2016, "GastoSalarial": 3730.0, "Salario": 1900, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jos\u00e9 do Vale Lisboa", "Area": "Financeiro", "Cargo": "Coordenador", "AnoContratacao": 2017, "GastoSalarial": 18060.0, "Salario": 10700, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luis Figueiredo Gabriel", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2017, "GastoSalarial": 3950.0, "Salario": 2000, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luize da Costa", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2017, "GastoSalarial": 16900.0, "Salario": 10000, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Thomaz Campelo da Silva", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2017, "GastoSalarial": 2430.0, "Salario": 1000, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Tiago de Ara\u00fajo J\u00fanior", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 10140.0, "Salario": 5800, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luiza Garcia Soares", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 11780.0, "Salario": 7000, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Mariana Schwenck Gullo", "Area": "Financeiro", "Cargo": "Gerente", "AnoContratacao": 2017, "GastoSalarial": 24480.0, "Salario": 14900, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Andre Campos", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2017, "GastoSalarial": 17930.0, "Salario": 10700, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bruno de Souza", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 11530.0, "Salario": 6800, "Cidade": "Recife", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "J\u00falia Oliveira de Mello Silva", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2017, "GastoSalarial": 19600.0, "Salario": 11900, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Manuela Abreu Braga Martins", "Area": "Financeiro", "Cargo": "Gerente", "AnoContratacao": 2017, "GastoSalarial": 27040.0, "Salario": 16500, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bruno Vargas", "Area": "Comercial", "Cargo": "Gerente", "AnoContratacao": 2017, "GastoSalarial": 23250.0, "Salario": 14100, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Cynthia Ribeiro", "Area": "Financeiro", "Cargo": "Gerente", "AnoContratacao": 2017, "GastoSalarial": 27310.0, "Salario": 16600, "Cidade": "Recife", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Marcelo Amaral Coelho", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2017, "GastoSalarial": 2190.0, "Salario": 900, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jaqueline Rimolo de Menezes", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 13220.0, "Salario": 7700, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Jeferson Ramos", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2017, "GastoSalarial": 18880.0, "Salario": 11400, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Paula de Sousa Leite", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 10750.0, "Salario": 6200, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Leonardo de Paula", "Area": "Log\u00edstica", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2017, "GastoSalarial": 2490.0, "Salario": 1100, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Breno Franklin da Silva", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 13660.0, "Salario": 8000, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Matheus Sep\u00falveda", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2017, "GastoSalarial": 2270.0, "Salario": 900, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Carolina Gon\u00e7alves Lixa Fontoura", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 13500.0, "Salario": 7900, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luiza Castro Guimar\u00e3es", "Area": "Comercial", "Cargo": "Coordenador", "AnoContratacao": 2017, "GastoSalarial": 18660.0, "Salario": 11300, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Leticia Orichio", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 15370.0, "Salario": 9100, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jo\u00e3o Monteiro", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 12890.0, "Salario": 7500, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Izabel Costa", "Area": "Log\u00edstica", "Cargo": "Gerente", "AnoContratacao": 2017, "GastoSalarial": 23350.0, "Salario": 14200, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "J\u00e9ssica Neves Heimlich", "Area": "Comercial", "Cargo": "Coordenador", "AnoContratacao": 2017, "GastoSalarial": 20490.0, "Salario": 12300, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Paulo Souza", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2017, "GastoSalarial": 2830.0, "Salario": 1300, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Yasmini de Almeida Richa", "Area": "Log\u00edstica", "Cargo": "Coordenador", "AnoContratacao": 2017, "GastoSalarial": 20860.0, "Salario": 12500, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Nathalia Melo Eiras", "Area": "Comercial", "Cargo": "Gerente", "AnoContratacao": 2017, "GastoSalarial": 25010.0, "Salario": 15100, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Clarissa Ferreira", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2017, "GastoSalarial": 4070.0, "Salario": 2100, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Vitor Cordovil de Maglh\u00e3es", "Area": "Opera\u00e7\u00f5es", "Cargo": "Gerente", "AnoContratacao": 2017, "GastoSalarial": 26030.0, "Salario": 15800, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Matheus Matta Marques", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 10610.0, "Salario": 6100, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Lucas Luca Lima Barbosa", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2017, "GastoSalarial": 2460.0, "Salario": 1000, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Yago Oliveira", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2017, "GastoSalarial": 2290.0, "Salario": 900, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Carlos Amorim", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2017, "GastoSalarial": 3510.0, "Salario": 1800, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Julia Novaes Silva", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 13010.0, "Salario": 7600, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Maryanna Ferraz", "Area": "Financeiro", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 14050.0, "Salario": 8400, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Carolina Araujo Sagrillo", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 11440.0, "Salario": 6800, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "L\u00edgia Fernandes Filardi", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2017, "GastoSalarial": 2350.0, "Salario": 1000, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bernardo Silva", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2017, "GastoSalarial": 9110.0, "Salario": 5200, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Matheus Rubio", "Area": "Log\u00edstica", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2018, "GastoSalarial": 3600.0, "Salario": 1900, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Beatriz Barrozo", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 9210.0, "Salario": 5300, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Nuno de Oliveira Sampaio", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2018, "GastoSalarial": 2870.0, "Salario": 1400, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Arn\u00f4r Penedo", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 13210.0, "Salario": 7800, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luiz Guar\u00e7oni Migueis", "Area": "Comercial", "Cargo": "Coordenador", "AnoContratacao": 2018, "GastoSalarial": 18020.0, "Salario": 10700, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Manuela Tavares", "Area": "Comercial", "Cargo": "Coordenador", "AnoContratacao": 2018, "GastoSalarial": 21050.0, "Salario": 12700, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Caroline Gaspar de Mattos      ", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2018, "GastoSalarial": 20270.0, "Salario": 12200, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Amanda Pessanha", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2018, "GastoSalarial": 2360.0, "Salario": 1100, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bruna Mello Varela", "Area": "Financeiro", "Cargo": "Coordenador", "AnoContratacao": 2018, "GastoSalarial": 18330.0, "Salario": 11000, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Daniel Pinto Anast\u00e1cio Machado", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 11580.0, "Salario": 6700, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Juliana Stockler", "Area": "Comercial", "Cargo": "Coordenador", "AnoContratacao": 2018, "GastoSalarial": 21570.0, "Salario": 13100, "Cidade": "Campinas", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Gabriel Castro Cerqueira", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 13530.0, "Salario": 8000, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Vinicius Monteiro", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 9090.0, "Salario": 5300, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Ananda Garcia Soares", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2018, "GastoSalarial": 3120.0, "Salario": 1400, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Rodrigo Venceslau Santos de Gusm\u00e3o", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 14090.0, "Salario": 8300, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Maria Lopes de Almeida", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 11340.0, "Salario": 6500, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Thalles Jord\u00e3o Teixeira", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2018, "GastoSalarial": 2220.0, "Salario": 800, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bruno Paes Leme", "Area": "Financeiro", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 10860.0, "Salario": 6200, "Cidade": "Recife", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Maria Mello", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 14160.0, "Salario": 8300, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jo\u00e3o Resinente", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 13010.0, "Salario": 7600, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Renata Pinheiro", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2018, "GastoSalarial": 3090.0, "Salario": 1400, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Julia Freitas", "Area": "Log\u00edstica", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2018, "GastoSalarial": 2410.0, "Salario": 1000, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Bernardo de Lima Oliveira", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2018, "GastoSalarial": 16070.0, "Salario": 9600, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "J\u00e9ssica de Morais Silva", "Area": "Log\u00edstica", "Cargo": "Coordenador", "AnoContratacao": 2018, "GastoSalarial": 19150.0, "Salario": 11500, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Carolina Marques", "Area": "Log\u00edstica", "Cargo": "Coordenador", "AnoContratacao": 2018, "GastoSalarial": 21700.0, "Salario": 13200, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Fl\u00e1vio Silva Mendon\u00e7a", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 12030.0, "Salario": 7000, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Ana Bernardo", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2018, "GastoSalarial": 2110.0, "Salario": 800, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Leonardo Valen\u00e7a Castro", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2018, "GastoSalarial": 10640.0, "Salario": 6300, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Pedro Jardim", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2019, "GastoSalarial": 18070.0, "Salario": 10800, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Milena Brum", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2019, "GastoSalarial": 10890.0, "Salario": 6300, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Aline Santos Silva", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2019, "GastoSalarial": 14730.0, "Salario": 8800, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Michelle Zerbinato", "Area": "Log\u00edstica", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 3130.0, "Salario": 1500, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Larissa Leal Pedrosa", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 3050.0, "Salario": 1500, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Fl\u00e1via Jordao", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2019, "GastoSalarial": 15390.0, "Salario": 9100, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Carolina da Silva", "Area": "Financeiro", "Cargo": "Coordenador", "AnoContratacao": 2019, "GastoSalarial": 17060.0, "Salario": 10100, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Adelino Werneck", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2019, "GastoSalarial": 19370.0, "Salario": 11600, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luisa da Costa  ", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 3890.0, "Salario": 2000, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Camila Fonseca Martinez", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 3990.0, "Salario": 2100, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jo\u00e3o Fagundes", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 2810.0, "Salario": 1300, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Nicole Marquito de Paiva Torres", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2019, "GastoSalarial": 12530.0, "Salario": 7300, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Priscila de Oliveira", "Area": "Financeiro", "Cargo": "Analista", "AnoContratacao": 2019, "GastoSalarial": 10130.0, "Salario": 5800, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Lucas Brum Pereira", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 2860.0, "Salario": 1200, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Juliana Rodrigues", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 1990.0, "Salario": 800, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Felipe Sousa Melo", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2019, "GastoSalarial": 9690.0, "Salario": 5500, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Patricia Vieira Branco de Matos", "Area": "Log\u00edstica", "Cargo": "Coordenador", "AnoContratacao": 2019, "GastoSalarial": 18240.0, "Salario": 11000, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Fl\u00e1vio Fontes", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2019, "GastoSalarial": 12760.0, "Salario": 7600, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Aline da Silva", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 1890.0, "Salario": 800, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Milena C\u00e2ndido Xavier Ferreira", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 3360.0, "Salario": 1700, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Nathalia Bach", "Area": "Financeiro", "Cargo": "Analista", "AnoContratacao": 2019, "GastoSalarial": 12690.0, "Salario": 7400, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Marianna Pereira da Silva", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 2640.0, "Salario": 1300, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Daniel Alvarenga dos Santos", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 3510.0, "Salario": 1700, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Wesley de Melo Teixeira", "Area": "Log\u00edstica", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 3180.0, "Salario": 1400, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jos\u00e9 Cardeman", "Area": "Financeiro", "Cargo": "Coordenador", "AnoContratacao": 2019, "GastoSalarial": 19170.0, "Salario": 11600, "Cidade": "Campinas", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Eduardo Ota Hirose", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 2500.0, "Salario": 1200, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Andr\u00e9 dos Santos Pereira Brito", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2019, "GastoSalarial": 2340.0, "Salario": 900, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Camila Regis Ivo", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2020, "GastoSalarial": 3410.0, "Salario": 1600, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jeferson Pinheiro Mariano", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2020, "GastoSalarial": 18430.0, "Salario": 11000, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Ana de Almeida Fournier de Assis", "Area": "Comercial", "Cargo": "Coordenador", "AnoContratacao": 2020, "GastoSalarial": 17370.0, "Salario": 10400, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Renan Taylor", "Area": "Financeiro", "Cargo": "Gerente", "AnoContratacao": 2020, "GastoSalarial": 21550.0, "Salario": 13000, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luana Lopes", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2020, "GastoSalarial": 22020.0, "Salario": 13200, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bruna Ferreira", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2020, "GastoSalarial": 20570.0, "Salario": 12300, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Victor Fonseca", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2020, "GastoSalarial": 2070.0, "Salario": 900, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bianca Aguiar", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 12090.0, "Salario": 7000, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Luiza Sobrinho Pereira", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2020, "GastoSalarial": 3660.0, "Salario": 1700, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jo\u0101o Leite Ursulino", "Area": "Financeiro", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 6840.0, "Salario": 3900, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Isabella de Azevedo Alves", "Area": "Comercial", "Cargo": "Gerente", "AnoContratacao": 2020, "GastoSalarial": 24640.0, "Salario": 15000, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Matheus Andrade Machado ", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2020, "GastoSalarial": 3070.0, "Salario": 1400, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Juan Santos Rosa", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2020, "GastoSalarial": 3950.0, "Salario": 2000, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "R\u00f4mulo Knudsen", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 8240.0, "Salario": 4800, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Ighor Araujo Kelly", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 14020.0, "Salario": 8400, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Andre Ribeiro da Costa", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2020, "GastoSalarial": 2710.0, "Salario": 1300, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Giovana Marinho", "Area": "Opera\u00e7\u00f5es", "Cargo": "Gerente", "AnoContratacao": 2020, "GastoSalarial": 25170.0, "Salario": 15200, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Pedro Correa Rodriguez", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2020, "GastoSalarial": 15770.0, "Salario": 9300, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Diego Limp", "Area": "Comercial", "Cargo": "Coordenador", "AnoContratacao": 2020, "GastoSalarial": 20210.0, "Salario": 12100, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Higor Frossard", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2020, "GastoSalarial": 3680.0, "Salario": 1900, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Rafael Hollander", "Area": "Financeiro", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 7050.0, "Salario": 3900, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Tha\u00eds Lisboa", "Area": "Financeiro", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 14690.0, "Salario": 8800, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Juan Fernandes de Ara\u00fajo", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 10960.0, "Salario": 6300, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Vinicius Freitas", "Area": "Financeiro", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 8750.0, "Salario": 5000, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Eduarda Chagas", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2020, "GastoSalarial": 3850.0, "Salario": 1900, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bruno Cunha Felippe", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 13920.0, "Salario": 8300, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Renan Scharnhorst Ott", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 11280.0, "Salario": 6500, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "Rodrigo da Silva", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2020, "GastoSalarial": 19140.0, "Salario": 11400, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Marcos Almeida Albuquerque Faria", "Area": "Financeiro", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 12210.0, "Salario": 7200, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Ana de S\u00e1 Foly", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2020, "GastoSalarial": 2650.0, "Salario": 1100, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Suelen Lander Regasso", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2020, "GastoSalarial": 13650.0, "Salario": 8000, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Ra\u00edza Barbosa", "Area": "Administrativo", "Cargo": "Analista", "AnoContratacao": 2021, "GastoSalarial": 11420.0, "Salario": 6600, "Cidade": "Recife", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Eduardo Paes Leme", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2021, "GastoSalarial": 13200.0, "Salario": 7900, "Cidade": "Recife", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Arthur Vaz", "Area": "Financeiro", "Cargo": "Gerente", "AnoContratacao": 2021, "GastoSalarial": 23040.0, "Salario": 14000, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Filipe Tabet", "Area": "Log\u00edstica", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2021, "GastoSalarial": 2390.0, "Salario": 1100, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Lucas Martins", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2021, "GastoSalarial": 17050.0, "Salario": 10200, "Cidade": "Campinas", "AvaliacaoCategoria": "Boa"}, {"Nome": "B\u00e1rbara Rodrigues", "Area": "Financeiro", "Cargo": "Coordenador", "AnoContratacao": 2021, "GastoSalarial": 19290.0, "Salario": 11600, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Rafael Carrera", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2021, "GastoSalarial": 3270.0, "Salario": 1600, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Daniele Blumberg", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2021, "GastoSalarial": 2480.0, "Salario": 1200, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Rafael Rodrigues de Sousa", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2021, "GastoSalarial": 2700.0, "Salario": 1100, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Gabriela e Alves", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2021, "GastoSalarial": 3760.0, "Salario": 1800, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Carolina Venceslau Santos de Gusm\u00e3o", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2021, "GastoSalarial": 2770.0, "Salario": 1200, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Giovanna Fahrnholz", "Area": "Administrativo", "Cargo": "Gerente", "AnoContratacao": 2021, "GastoSalarial": 24920.0, "Salario": 15200, "Cidade": "Salvador", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bruna Rocha de Carvalho", "Area": "Comercial", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2021, "GastoSalarial": 3330.0, "Salario": 1700, "Cidade": "Salvador", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Audir de Avila Goulart", "Area": "Opera\u00e7\u00f5es", "Cargo": "Analista", "AnoContratacao": 2021, "GastoSalarial": 12320.0, "Salario": 7300, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "B\u00e1rbara Spenchutt Vieira", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2021, "GastoSalarial": 3690.0, "Salario": 1800, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Amanda Ferreira", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2021, "GastoSalarial": 19480.0, "Salario": 11800, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Andressa Queiroz Israel", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2021, "GastoSalarial": 11070.0, "Salario": 6400, "Cidade": "Curitiba", "AvaliacaoCategoria": "Boa"}, {"Nome": "Igor Feijo", "Area": "Financeiro", "Cargo": "Analista", "AnoContratacao": 2021, "GastoSalarial": 6940.0, "Salario": 3800, "Cidade": "Recife", "AvaliacaoCategoria": "Boa"}, {"Nome": "Carolina Croix Barros", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2021, "GastoSalarial": 17850.0, "Salario": 10600, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Bruna Tavares Vasconcelos", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2021, "GastoSalarial": 2010.0, "Salario": 800, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Fernanda do Nascimento Rocha", "Area": "Opera\u00e7\u00f5es", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2021, "GastoSalarial": 3530.0, "Salario": 1800, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Isabella Delgado Fernandes", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2021, "GastoSalarial": 14170.0, "Salario": 8300, "Cidade": "Goi\u00e2nia", "AvaliacaoCategoria": "Boa"}, {"Nome": "Nath\u00e1lia Fernandes de Ara\u00fajo", "Area": "Administrativo", "Cargo": "Gerente", "AnoContratacao": 2021, "GastoSalarial": 27290.0, "Salario": 16600, "Cidade": "Curitiba", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Roberto Leite", "Area": "Comercial", "Cargo": "Coordenador", "AnoContratacao": 2021, "GastoSalarial": 18570.0, "Salario": 11100, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Isabella Bernardo", "Area": "Comercial", "Cargo": "Coordenador", "AnoContratacao": 2021, "GastoSalarial": 18940.0, "Salario": 11300, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Hannah de Oliveira", "Area": "Administrativo", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2021, "GastoSalarial": 3140.0, "Salario": 1600, "Cidade": "Porto Alegre", "AvaliacaoCategoria": "Boa"}, {"Nome": "Vitor Almeida da Silveira", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2021, "GastoSalarial": 7580.0, "Salario": 4200, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Marina Lobo Meira", "Area": "Log\u00edstica", "Cargo": "Analista", "AnoContratacao": 2021, "GastoSalarial": 12470.0, "Salario": 7400, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Razo\u00e1vel"}, {"Nome": "Lucas Short Santa Cecilia", "Area": "Financeiro", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2022, "GastoSalarial": 2070.0, "Salario": 900, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Guilherme Lopes da Silveira ", "Area": "Log\u00edstica", "Cargo": "Estagi\u00e1rio", "AnoContratacao": 2022, "GastoSalarial": 2870.0, "Salario": 1300, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Paula Mota", "Area": "Comercial", "Cargo": "Coordenador", "AnoContratacao": 2022, "GastoSalarial": 20290.0, "Salario": 12300, "Cidade": "S\u00e3o Paulo", "AvaliacaoCategoria": "Boa"}, {"Nome": "Karine Cardoso das Chagas", "Area": "Opera\u00e7\u00f5es", "Cargo": "Coordenador", "AnoContratacao": 2022, "GastoSalarial": 17610.0, "Salario": 10500, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}, {"Nome": "Rafael Oliveira Leite Silva", "Area": "Administrativo", "Cargo": "Coordenador", "AnoContratacao": 2022, "GastoSalarial": 19290.0, "Salario": 11600, "Cidade": "Belo Horizonte", "AvaliacaoCategoria": "Boa"}, {"Nome": "Jo\u00e3o Pinheiro", "Area": "Comercial", "Cargo": "Analista", "AnoContratacao": 2022, "GastoSalarial": 14360.0, "Salario": 8500, "Cidade": "Rio de Janeiro", "AvaliacaoCategoria": "Boa"}]}
+;
+
+const fmtMoeda = v => 'R$ ' + (v/1000000 >= 1
+  ? (v/1000000).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' Mi'
+  : (v/1000).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' Mil');
+
+let state = { type:null, key:null }; // type: 'ano' | 'area'
+
+function recordsFiltered(){
+  if(!state.type) return DADOS.records;
+  if(state.type === 'ano') return DADOS.records.filter(r => String(r.AnoContratacao) === String(state.key));
+  if(state.type === 'area') return DADOS.records.filter(r => r.Area === state.key);
+  return DADOS.records;
+}
+
+function aggByYear(records){
+  const m = {};
+  records.forEach(r => { const y = String(r.AnoContratacao); m[y] = (m[y]||0)+1; });
+  return m;
+}
+function aggByArea(records){
+  const m = {};
+  records.forEach(r => { m[r.Area] = (m[r.Area]||0)+1; });
+  return m;
+}
+
+function updateCards(records){
+  const totalGasto = records.reduce((s,r) => s + r.GastoSalarial, 0);
+  const mediaSalario = records.length ? records.reduce((s,r) => s + r.Salario, 0) / records.length : 0;
+  const areaCounts = aggByArea(records);
+  const areaMais = Object.entries(areaCounts).sort((a,b) => b[1]-a[1])[0];
+
+  document.getElementById('cardGasto').textContent = fmtMoeda(totalGasto);
+  document.getElementById('cardGastoSub').textContent = state.type ? `${records.length} colaboradores no filtro` : 'com benefícios e imposto';
+
+  document.getElementById('cardMedia').textContent = 'R$ ' + (mediaSalario/1000).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' Mil';
+  document.getElementById('cardMediaSub').textContent = state.type ? `${records.length} colaboradores no filtro` : 'salário-base, sem benefícios';
+
+  if(areaMais){
+    document.getElementById('cardArea').textContent = areaMais[0];
+    document.getElementById('cardAreaSub').textContent = `${areaMais[1]} colaboradores`;
+  }
+}
+
+function updateFilterChip(){
+  const chip = document.getElementById('filterChip');
+  const hint = document.getElementById('noFilterHint');
+  if(state.type){
+    chip.classList.add('active');
+    hint.style.display = 'none';
+    document.getElementById('filterChipText').textContent =
+      state.type === 'ano' ? `Ano: ${state.key}` : `Área: ${state.key}`;
+  } else {
+    chip.classList.remove('active');
+    hint.style.display = 'inline';
+  }
+}
+
+function setFilter(type, key){
+  if(state.type === type && state.key === key){
+    state = { type:null, key:null }; // toggle off
+  } else {
+    state = { type, key };
+  }
+  render();
+}
+
+function clearFilter(){
+  state = { type:null, key:null };
+  render();
+}
+
+const tooltip = document.getElementById('tooltip');
+function showTooltip(html, evt){
+  tooltip.innerHTML = html;
+  tooltip.classList.add('show');
+  moveTooltip(evt);
+}
+function moveTooltip(evt){
+  const x = evt.clientX + 16;
+  const y = evt.clientY + 16;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top = y + 'px';
+}
+function hideTooltip(){ tooltip.classList.remove('show'); }
+
+function renderBars(){
+  const barsEl = document.getElementById('bars');
+  barsEl.innerHTML = '';
+
+  // counts respecting the OTHER filter (area filter affects year chart), but year chart itself defines its own selection
+  const baseRecords = state.type === 'area' ? DADOS.records.filter(r => r.Area === state.key) : DADOS.records;
+  const counts = aggByYear(baseRecords);
+  const years = Object.keys(DADOS.contratacoes_ano).sort();
+  const maxV = Math.max(...years.map(y => counts[y]||0), 1);
+
+  years.forEach(year => {
+    const val = counts[year] || 0;
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    if(state.type === 'ano'){
+      col.classList.add(state.key === year ? 'selected' : 'dimmed');
+    }
+    const recordsForYear = baseRecords.filter(r => String(r.AnoContratacao) === year);
+    const gastoAno = recordsForYear.reduce((s,r)=>s+r.GastoSalarial,0);
+
+    col.innerHTML = `
+      <span class="bar-val">${val}</span>
+      <div class="bar" style="height:${maxV ? (val/maxV*100).toFixed(0) : 0}%"></div>
+      <span class="bar-label">${year}</span>
+    `;
+    col.addEventListener('mouseenter', (e) => {
+      showTooltip(`<b>${year}</b>${val} contratações${gastoAno ? '<br>' + fmtMoeda(gastoAno) + ' em gasto salarial' : ''}`, e);
+    });
+    col.addEventListener('mousemove', moveTooltip);
+    col.addEventListener('mouseleave', hideTooltip);
+    col.addEventListener('click', () => setFilter('ano', year));
+    barsEl.appendChild(col);
+  });
+}
+
+function renderHBars(){
+  const hbarsEl = document.getElementById('hbars');
+  hbarsEl.innerHTML = '';
+
+  const baseRecords = state.type === 'ano' ? DADOS.records.filter(r => String(r.AnoContratacao) === state.key) : DADOS.records;
+  const counts = aggByArea(baseRecords);
+  const areas = Object.keys(DADOS.func_area).sort((a,b) => (DADOS.func_area[b]) - (DADOS.func_area[a]));
+  const maxA = Math.max(...areas.map(a => counts[a]||0), 1);
+
+  areas.forEach(area => {
+    const val = counts[area] || 0;
+    const row = document.createElement('div');
+    row.className = 'hbar-row';
+    if(state.type === 'area'){
+      row.classList.add(state.key === area ? 'selected' : 'dimmed');
+    }
+    const recordsForArea = baseRecords.filter(r => r.Area === area);
+    const gastoArea = recordsForArea.reduce((s,r)=>s+r.GastoSalarial,0);
+    const mediaArea = recordsForArea.length ? recordsForArea.reduce((s,r)=>s+r.Salario,0)/recordsForArea.length : 0;
+
+    row.innerHTML = `
+      <span class="hbar-label">${area}</span>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${maxA ? (val/maxA*100).toFixed(0) : 0}%"></div></div>
+      <span class="hbar-val">${val}</span>
+    `;
+    row.addEventListener('mouseenter', (e) => {
+      showTooltip(`<b>${area}</b>${val} funcionários${recordsForArea.length ? '<br>Salário médio: R$ ' + mediaArea.toLocaleString('pt-BR',{maximumFractionDigits:0}) : ''}${gastoArea ? '<br>' + fmtMoeda(gastoArea) + ' em gasto salarial' : ''}`, e);
+    });
+    row.addEventListener('mousemove', moveTooltip);
+    row.addEventListener('mouseleave', hideTooltip);
+    row.addEventListener('click', () => setFilter('area', area));
+    hbarsEl.appendChild(row);
+  });
+}
+
+function render(){
+  updateCards(recordsFiltered());
+  updateFilterChip();
+  renderBars();
+  renderHBars();
+}
+
+document.getElementById('clearFilter').addEventListener('click', clearFilter);
+
+render();
+</script>
+
+</body>
+</html>
